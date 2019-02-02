@@ -1,0 +1,6 @@
+framework:
+    router:
+        strict_requirements: true
+    assets:
+        base_urls:
+        - 'http://localhost/rp/public/'
