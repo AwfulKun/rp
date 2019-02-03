@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div id="root"></div>
+Nombre de rps : {{ rps }}
+    <div id="root"><div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
 {% endblock %}

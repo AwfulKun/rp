@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AppCharacter index{% endblock %}
+
+{% block body %}
+    <h1>AppCharacter index</h1>
+    <div
+        id="todolist"
+        data-items="{{ app_characters|json_encode }}"
+    ></div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for app_character in app_characters %}
+            <tr>
+                <td>{{ app_character.id }}</td>
+                <td>{{ app_character.name }}</td>
+                <td>{{ app_character.surname }}</td>
+                <td>
+                    <a href="{{ path('app_character_show', {'id': app_character.id}) }}">show</a>
+                    <a href="{{ path('app_character_edit', {'id': app_character.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_character_new') }}">Create new</a>
+{% endblock %}
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+{% endblock %}

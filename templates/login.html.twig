@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<script type="text/javascript">
+
+    // you might have to serialise user to JSON here if you
+    // want a more complete user object
+    var last_username = '{{ last_username }}';
+    var token = "{{ csrf_token('authenticate') }}";
+    var error = '{{ error }}';
+    var error_mess = "";
+
+</script>
+{% if error %}
+<script type="text/javascript">
+    var error_mess = "<div class='alert alert-danger'>{{ error.messageKey|trans(error.messageData, 'security') }}</div>";
+</script>
+{% endif %}
+<div id="root"></div>
+{% endblock %}

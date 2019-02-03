@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rp{% endblock %}
+
+{% block body %}
+    <h1>Rp</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ rp.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ rp.title }}</td>
+            </tr>
+            <tr>
+                <th>Link</th>
+                <td>{{ rp.link }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('rp_index') }}">back to list</a>
+
+    <a href="{{ path('rp_edit', {'id': rp.id}) }}">edit</a>
+
+    {{ include('rp/_delete_form.html.twig') }}
+{% endblock %}

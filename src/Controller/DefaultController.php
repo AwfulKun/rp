@@ -2,18 +2,31 @@
 
 namespace App\Controller;
 
+use App\Entity\Rp;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DefaultController extends Controller
+class DefaultController extends BaseController
 {
     /**
      * @Route("/", name="index")
      */
     public function indexAction()
     {
-        return $this->render('Default/index.html.twig', []);
+        $user = $this->getUser()->getId();
+
+        $rps = $this->getDoctrine()
+            ->getRepository(Rp::class)
+            ->createQueryBuilder('r')
+            ->select('COUNT(r)')
+            ->join('r.appUser', 'a')
+            ->where('a.id = :id')
+            ->setParameter('id', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $this->render('default/index.html.twig', ['rps' => $rps,]);
     }
 
     /**

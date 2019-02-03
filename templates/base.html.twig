@@ -2,18 +2,60 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome to React Symfony 4 Starter!{% endblock %}</title>
+        <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        {{ encore_entry_link_tags('app') }}
         {% endblock %}
     </head>
     <body>
-        <header>
-            <h1>React Symfony 4 Starter</h1>
-        </header>
-        {% block body %}{% endblock %}
-        {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
+    {% block navigation %}
+        <div class="fixed-top d-flex flex-column flex-md-row align-items-center p-3 px-md-4 bg-white border-bottom shadow-sm">
+
+            <h5 class="my-0 mr-md-auto font-weight-normal">
+                <a href="{{ path('index') }}">
+        <span class="fa-stack fa-lg text-primary">
+          <i class="fa fa-square fa-stack-2x"></i>
+          <i class="fa fa-search fa-stack-1x fa-inverse"></i>
+        </span>
+                Traoùvé
+                </a>
+            </h5>
+
+            <nav class="my-2 my-md-0 mr-md-3">
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <a href="{{ path('rp_index') }}">Gérer mes RPs</a>
+                    <a href="{{ path('characters_index') }}">Gérer mes personnagess</a>
+                {% endif %}
+            </nav>
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            <div class="btn brn-outline-primary btn-space">
+                {{ app.user.username }}
+            </div>
+                <a class="btn btn-outline-secondary" href="{{ path('app_logout') }}">
+                    <i class="fa fa-user-plus"></i>
+                    Déconnexion
+                </a>
+                {% else %}
+            <a class="btn btn-outline-primary btn-space" href="{{ path('app_register') }}">
+                <i class="fa fa-user-plus"></i>
+                Créer un compte
+            </a>
+            <a class="btn btn-outline-secondary" href="{{ path('app_login') }}">
+                <i class="fa fa-user-plus"></i>
+                Connexion
+            </a>
+            {% endif %}
+        </div>
+    {% endblock %}
+    {% block variables %}
+            {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                <input type="hidden" id="user_id" value="{{ app.user.id }}" />
+                {% else %}
+                <input type="hidden" id="user_id" value="" />
+            {% endif %}
         {% endblock %}
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
     </body>
 </html>
