@@ -14,17 +14,21 @@ class DefaultController extends BaseController
      */
     public function indexAction()
     {
-        $user = $this->getUser()->getId();
+        $user = $this->getUser();
 
-        $rps = $this->getDoctrine()
-            ->getRepository(Rp::class)
-            ->createQueryBuilder('r')
-            ->select('COUNT(r)')
-            ->join('r.appUser', 'a')
-            ->where('a.id = :id')
-            ->setParameter('id', $user)
-            ->getQuery()
-            ->getSingleScalarResult();
+        if ($user) {
+            $rps = $this->getDoctrine()
+                ->getRepository(Rp::class)
+                ->createQueryBuilder('r')
+                ->select('COUNT(r)')
+                ->join('r.appUser', 'a')
+                ->where('a.id = :id')
+                ->setParameter('id', $user->getId())
+                ->getQuery()
+                ->getSingleScalarResult();
+        } else {
+            $rps = 0;
+        }
 
         return $this->render('default/index.html.twig', ['rps' => $rps,]);
     }

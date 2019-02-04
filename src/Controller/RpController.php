@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Rp;
+use App\Entity\Status;
+use App\Entity\AppCharacter;
+use App\Entity\AppUser;
 use App\Form\RpType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,21 +26,26 @@ class RpController extends BaseController
      */
     public function index(): Response
     {
-        $user = $this->getUser()->getId();
+        $user = $this->getUser();
 
         // $rps = $this->getDoctrine()
         //     ->getRepository(Rp::class)
         //     ->findAll();
 
-        $rps = $this->getDoctrine()
-            ->getRepository(Rp::class)
-            ->createQueryBuilder('r')
-            ->select('r', 'a')
-            ->join('r.appUser', 'a')
-            ->where('a.id = :id')
-            ->setParameter('id', $user)
-            ->getQuery()
-            ->getResult();
+        if ($user) {
+
+            $rps = $this->getDoctrine()
+                ->getRepository(Rp::class)
+                ->createQueryBuilder('r')
+                ->select('r', 'a')
+                ->join('r.appUser', 'a')
+                ->where('a.id = :id')
+                ->setParameter('id', $user->getId())
+                ->getQuery()
+                ->getResult();
+        } else {
+            $rps = "";
+        }
 
 
         return $this->render('rp/index.html.twig', [
@@ -89,7 +97,7 @@ class RpController extends BaseController
 
         // $normalizer->setIgnoredAttributes(array("appUser", "appCharacter"));
         $normalizer->setCircularReferenceHandler(function ($object, string $format = null, array $context = []) {
-            return $object->getTitle();
+            return $object->getId();
         });
 
         $serializer = new Serializer(array($normalizer), array($encoder));
@@ -121,6 +129,61 @@ class RpController extends BaseController
             'rp' => $rp,
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/", name="rp_new_api", methods="POST")
+     */
+    public function new_api(Request $request): Response
+    {
+
+        $data = $request->getContent();
+        $jsonData = json_decode($data, true);
+
+        print_r($jsonData);
+        $statut = $this->getDoctrine()->getRepository(Status::class)->find($jsonData["statut"]);
+        $personnages = $this->getDoctrine()->getRepository(AppCharacter::class)->findBy(array(
+            'id' => $jsonData["personnages"]));
+        $userTemp = $this->getUser()->getId();
+        $user = $this->getDoctrine()->getRepository(AppUser::class)->find($userTemp);
+        $em = $this->getDoctrine()->getManager();
+
+        $rp = new Rp();
+        $rp->setStatus($statut);
+        $rp->setTitle($jsonData["titre"]);
+        $rp->setLink($jsonData["lien"]);
+
+        foreach ($personnages as $personnage) {
+            $rp->addAppCharacter($personnage);
+        }
+        
+        $rp->setAppUser($user);
+
+        $em->persist($rp);
+        $em->flush();
+
+        $rp = $this->getDoctrine()
+            ->getRepository(Rp::class)
+            ->createQueryBuilder('r')
+            ->select('r')
+            ->join('r.appUser', 'a')
+            ->leftJoin('r.appCharacter', 'appCharacter')
+            ->where('a.id = :id')
+            ->setParameter('id', $userTemp)
+            ->getQuery()
+            ->getResult();
+
+            $encoder = new JsonEncoder();
+            $normalizer = new ObjectNormalizer();
+    
+            // $normalizer->setIgnoredAttributes(array("appUser", "appCharacter"));
+            $normalizer->setCircularReferenceHandler(function ($object, string $format = null, array $context = []) {
+                return $object->getId();
+            });
+    
+            $serializer = new Serializer(array($normalizer), array($encoder));
+            $jsonResponse = new JsonResponse();
+            return $jsonResponse->setContent($serializer->serialize($rp, 'json'));
     }
 
     /**
@@ -156,16 +219,18 @@ class RpController extends BaseController
     }
 
     /**
-     * @Route("/{id}", name="rp_delete", methods={"DELETE"})
+     * @Route("/", name="rp_delete", methods={"DELETE"})
      */
-    public function delete(Request $request, Rp $rp): Response
+    public function delete(Request $request): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$rp->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($rp);
-            $entityManager->flush();
-        }
 
-        return $this->redirectToRoute('rp_index');
+        $data = $request->getContent();
+        $jsonData = json_decode($data, true);
+
+        $rp = $this->getDoctrine()->getRepository(Rp::class)->find($jsonData["id"]);
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($rp);
+            $em->flush();
+        return $this->json($this->serialize($rp));
     }
 }

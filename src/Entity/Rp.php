@@ -74,6 +74,16 @@ class Rp
     private $appCharacter;
 
     /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $date_end;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $created_at;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -156,6 +166,30 @@ class Rp
         if ($this->appCharacter->contains($appCharacter)) {
             $this->appCharacter->removeElement($appCharacter);
         }
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $created_at): self
+    {
+        $this->createdAt = $created_at;
+
+        return $this;
+    }
+
+    public function getDateEnd(): ?\DateTimeInterface
+    {
+        return $this->date_end;
+    }
+
+    public function setDateEnd(?\DateTimeInterface $date_end): self
+    {
+        $this->date_end = $date_end;
 
         return $this;
     }

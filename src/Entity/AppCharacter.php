@@ -55,6 +55,11 @@ class AppCharacter
     private $appUser;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $avatar;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -133,6 +138,18 @@ class AppCharacter
 
     public function __toString() {
         return $this->name . ' ' . $this->surname;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): self
+    {
+        $this->avatar = $avatar;
+
+        return $this;
     }
 
 }

@@ -8,6 +8,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/character")
@@ -34,6 +38,34 @@ class AppCharacterController extends AbstractController
         return $this->render('app_character/index.html.twig', [
             'app_characters' => $appCharacters,
         ]);
+    }
+
+    /**
+     * @Route("/api", name="characters_index", methods={"GET"})
+     */
+    public function index_api(): Response
+    {
+        $user = $this->getUser()->getId();
+
+        $characters = $this->getDoctrine()
+            ->getRepository(AppCharacter::class)
+            ->createQueryBuilder('a')
+            ->select('a')
+            ->where('a.appUser = :id')
+            ->setParameter('id', $user)
+            ->getQuery()
+            ->getResult();
+
+        $encoder = new JsonEncoder();
+        $normalizer = new ObjectNormalizer();
+
+        $normalizer->setCircularReferenceHandler(function ($object, string $format = null, array $context = []) {
+            return $object->getId();
+        });
+
+        $serializer = new Serializer(array($normalizer), array($encoder));
+        $jsonResponse = new JsonResponse();
+        return $jsonResponse->setContent($serializer->serialize($characters, 'json'));
     }
 
     /**

@@ -8,7 +8,9 @@ class ListRps extends React.Component {
             titre: '',
             lien: '',
             statut: '',
+            statuts: [],
             personnages: [],
+            personnages_add: [],
             rps: []
         };
 
@@ -24,6 +26,24 @@ class ListRps extends React.Component {
             .then(response => response.json())
             .then(data => this.setState({rps : data}))
         ;
+        fetch('http://127.0.0.1:8000/character/api', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => this.setState({personnages : data}))
+        ;
+        fetch('http://127.0.0.1:8000/status/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => this.setState({statuts : data}))
+        ;
     }
 
     // CHANGEMENT DU STATE A LA MODIF DU INPUT
@@ -31,12 +51,19 @@ class ListRps extends React.Component {
         this.setState({
             [event.target.name]: event.target.value
         });
+        console.log("persos :" + this.state.personnages_add);
+        console.log("statut :" + this.state.statut);
     }
+    handleChangeMultiple(event) {
+        this.setState({personnages_add: Array.from(event.target.selectedOptions, (item) => parseInt(item.value))});
+        console.log("persos :" + this.state.personnages_add);
+    }
+
 
     // ENVOI DU FORMULAIRE
     handleSubmit(event) {
         event.preventDefault();
-        fetch('http://localhost/dcdev/php/expenshare/public/person/', {
+        fetch('http://127.0.0.1:8000/rp/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
@@ -44,19 +71,27 @@ class ListRps extends React.Component {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                firstname: this.state.firstname,
-                lastname: this.state.lastname,
-                sharegroup: this.props.id
+                titre: this.state.titre,
+                statut: parseInt(this.state.statut),
+                lien: this.state.lien,
+                personnages: this.state.personnages_add
             })
         })
-            .then(response => response.json())
+            .then((response) => {
+                try{
+                   response.json()
+                } 
+                catch(err){
+                   console.log(err);
+                }})
             .then(data => {
                 alert('Nouvel utilisateur ajouté !');
-                this.props.addPerson(data);
-                this.setState({
-                    firstname: '',
-                    lastname: ''
-                })
+                console.log(data)
+                // this.props.addPerson(data);
+                // this.setState({
+                //     firstname: '',
+                //     lastname: ''
+                // })
             })
             .catch(err => console.log(err))
         ;
@@ -64,9 +99,9 @@ class ListRps extends React.Component {
 
     // FONCTION SUPPRIMER
     handleDelete(id) {
-        let confirm = window.confirm("Voulez-vous vraiment supprimer l'utilisateur ?");
+        let confirm = window.confirm("Voulez-vous vraiment supprimer le RP ?");
         if (confirm) {
-            fetch('http://localhost/dcdev/php/expenshare/public/person/', {
+            fetch('http://127.0.0.1:8000/rp/', {
                 method: 'DELETE',
                 body: JSON.stringify({
                     id: parseInt(id)
@@ -74,8 +109,8 @@ class ListRps extends React.Component {
             })
                 .then(response => response.json())
                 .then(data => {
-                    alert('Utilisateur supprimé !');
-                    this.props.deletePerson(id);
+                    alert('RP supprimé !');
+                    this.state.deleteRp(id);
                 })
                 .catch(err => console.log(err))
             ;
@@ -84,12 +119,21 @@ class ListRps extends React.Component {
         }
     }
 
+    deleteRp(id) {
+        this.setState(prevState=>{
+            const newRps = prevState.state.filter((rp)=>rp.id!==id);
+            return {
+                rps: newRps
+            }
+        })
+    }
+
     render() {
-        console.log(this.state.rps);
+        // console.log(this.state.personnages);
 
         const rps = this.state.rps.map(rp => {
             return (
-                <div className="d-flex align-items-center mb-1" key={rp.title}>
+                <div className="d-flex align-items-center mb-1" key={rp.id}>
                     {rp.title}
                     {
                         rp.appCharacter.map((character) => {
@@ -98,9 +142,13 @@ class ListRps extends React.Component {
                         )
                         })
                     }
+                    <button id={rp.id} onClick={(e) => this.handleDelete(e.target.id)} className="ml-2" color="danger">Supprimer</button>
                 </div>
             )
         });
+
+        const characters = this.state.personnages.map((char) => <option key={char.id} value={char.id}>{char.name} {char.surname}</option>);
+        const statut = this.state.statuts.map((s) => <option key={s.id} value={s.id}>{s.label}</option>);
 
 
         // CHARGEMENT DE LA PAGE
@@ -115,6 +163,29 @@ class ListRps extends React.Component {
         return (
             <div>
                 <h1>Rps</h1>
+                <form onSubmit={this.handleSubmit.bind(this)}>
+                    <div className="d-flex align-items-center">
+                        <label htmlFor="titre" className="mr-2 font-weight-bold">Titre</label>
+                        <input type="text" value={this.state.titre} onChange={this.handleChange.bind(this)} name="titre" id="titre" placeholder="Titre" required />
+                    </div>
+                    <div className="d-flex align-items-center">
+                        <label htmlFor="lien" className="mr-2 font-weight-bold">Lien</label>
+                        <input type="text" value={this.state.lien} onChange={this.handleChange.bind(this)} name="lien" id="lien" placeholder="Lien" />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="statut">Statut</label>
+                        <select value={this.state.statut} onChange={this.handleChange.bind(this)} className="form-control" name="statut" id="statut">
+                        { statut }
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="personnages_add">Example multiple select</label>
+                        <select value={this.state.personnages_add} onChange={this.handleChangeMultiple.bind(this)} multiple={true} name="personnages_add" className="form-control" id="personnages_add">
+                        { characters }
+                        </select>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
 
                 <h2>Liste des personnes</h2>
                     {rps}
