@@ -51,12 +51,9 @@ class ListRps extends React.Component {
         this.setState({
             [event.target.name]: event.target.value
         });
-        console.log("persos :" + this.state.personnages_add);
-        console.log("statut :" + this.state.statut);
     }
     handleChangeMultiple(event) {
         this.setState({personnages_add: Array.from(event.target.selectedOptions, (item) => parseInt(item.value))});
-        console.log("persos :" + this.state.personnages_add);
     }
 
 
@@ -77,21 +74,16 @@ class ListRps extends React.Component {
                 personnages: this.state.personnages_add
             })
         })
-            .then((response) => {
-                try{
-                   response.json()
-                } 
-                catch(err){
-                   console.log(err);
-                }})
+            .then(response => response.json())
             .then(data => {
                 alert('Nouvel utilisateur ajouté !');
-                console.log(data)
-                // this.props.addPerson(data);
-                // this.setState({
-                //     firstname: '',
-                //     lastname: ''
-                // })
+                this.addRp(data);
+                this.setState({
+                    titre: '',
+                    statut: '',
+                    lien: '',
+                    personnages: []
+                })
             })
             .catch(err => console.log(err))
         ;
@@ -110,7 +102,7 @@ class ListRps extends React.Component {
                 .then(response => response.json())
                 .then(data => {
                     alert('RP supprimé !');
-                    this.state.deleteRp(id);
+                    this.deleteRp(id);
                 })
                 .catch(err => console.log(err))
             ;
@@ -119,13 +111,28 @@ class ListRps extends React.Component {
         }
     }
 
-    deleteRp(id) {
-        this.setState(prevState=>{
-            const newRps = prevState.state.filter((rp)=>rp.id!==id);
-            return {
-                rps: newRps
+    // Fonction de mise à jour des personnes (nouveau fetch)
+    update() {
+        fetch('http://127.0.0.1:8000/rp/api', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
+            .then(response => response.json())
+            .then(data => this.setState({rps : data}))
+        ;
+    }
+
+    deleteRp(id) {
+        this.update();
+    }
+
+    // ACTUALISER A L'AJOUT D'UNE PERSONNE
+    addRp(data) {
+        let rps = this.state.rps;
+        rps.push(JSON.parse(data));
+        this.setState({rps: rps});
     }
 
     render() {

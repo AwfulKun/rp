@@ -108,31 +108,7 @@ class RpController extends BaseController
     }
 
     /**
-     * @Route("/new", name="rp_new", methods={"GET","POST"})
-     */
-    public function new(Request $request): Response
-    {
-        $rp = new Rp();
-        $form = $this->createForm(RpType::class, $rp);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $rp->setAppUser($this->getUser());
-            $entityManager->persist($rp);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('rp_index');
-        }
-
-        return $this->render('rp/new.html.twig', [
-            'rp' => $rp,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/", name="rp_new_api", methods="POST")
+     * @Route("/", name="rp_new", methods="POST")
      */
     public function new_api(Request $request): Response
     {
@@ -140,7 +116,6 @@ class RpController extends BaseController
         $data = $request->getContent();
         $jsonData = json_decode($data, true);
 
-        print_r($jsonData);
         $statut = $this->getDoctrine()->getRepository(Status::class)->find($jsonData["statut"]);
         $personnages = $this->getDoctrine()->getRepository(AppCharacter::class)->findBy(array(
             'id' => $jsonData["personnages"]));
@@ -156,34 +131,13 @@ class RpController extends BaseController
         foreach ($personnages as $personnage) {
             $rp->addAppCharacter($personnage);
         }
-        
+
         $rp->setAppUser($user);
 
         $em->persist($rp);
         $em->flush();
 
-        $rp = $this->getDoctrine()
-            ->getRepository(Rp::class)
-            ->createQueryBuilder('r')
-            ->select('r')
-            ->join('r.appUser', 'a')
-            ->leftJoin('r.appCharacter', 'appCharacter')
-            ->where('a.id = :id')
-            ->setParameter('id', $userTemp)
-            ->getQuery()
-            ->getResult();
-
-            $encoder = new JsonEncoder();
-            $normalizer = new ObjectNormalizer();
-    
-            // $normalizer->setIgnoredAttributes(array("appUser", "appCharacter"));
-            $normalizer->setCircularReferenceHandler(function ($object, string $format = null, array $context = []) {
-                return $object->getId();
-            });
-    
-            $serializer = new Serializer(array($normalizer), array($encoder));
-            $jsonResponse = new JsonResponse();
-            return $jsonResponse->setContent($serializer->serialize($rp, 'json'));
+        return $this->json($this->serialize($rp));
     }
 
     /**
@@ -228,9 +182,11 @@ class RpController extends BaseController
         $jsonData = json_decode($data, true);
 
         $rp = $this->getDoctrine()->getRepository(Rp::class)->find($jsonData["id"]);
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($rp);
-            $em->flush();
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($rp);
+        $em->flush();
+
         return $this->json($this->serialize($rp));
     }
 }
