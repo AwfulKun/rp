@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class RpController extends BaseController
 {
     /**
-     * @Route("/", name="rp_index", methods={"GET"})
+     * @Route("/index/{reactRouting}", name="rp_index", defaults={"reactRouting": null})
      */
     public function index(): Response
     {
@@ -113,6 +113,8 @@ class RpController extends BaseController
     public function new_api(Request $request): Response
     {
 
+
+
         $data = $request->getContent();
         $jsonData = json_decode($data, true);
 
@@ -151,25 +153,37 @@ class RpController extends BaseController
     }
 
     /**
-     * @Route("/{id}/edit", name="rp_edit", methods={"GET","POST"})
+     * @Route("/{id}/edit", name="rp_edit",  methods="GET|POST")
      */
     public function edit(Request $request, Rp $rp): Response
     {
-        $form = $this->createForm(RpType::class, $rp);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+        $data = $request->getContent();
+        $jsonData = json_decode($data, true);
 
-            return $this->redirectToRoute('rp_index', [
-                'id' => $rp->getId(),
-            ]);
+        $statut = $this->getDoctrine()->getRepository(Status::class)->find($jsonData["statut"]);
+        $personnages = $this->getDoctrine()->getRepository(AppCharacter::class)->findBy(array(
+            'id' => $jsonData["personnages"]));
+        $userTemp = $this->getUser()->getId();
+        $user = $this->getDoctrine()->getRepository(AppUser::class)->find($userTemp);
+        $em = $this->getDoctrine()->getManager();
+
+        $rp->setStatus($statut);
+        $rp->setTitle($jsonData["titre"]);
+        $rp->setLink($jsonData["lien"]);
+
+        foreach ($personnages as $personnage) {
+            $rp->addAppCharacter($personnage);
         }
 
-        return $this->render('rp/edit.html.twig', [
-            'rp' => $rp,
-            'form' => $form->createView(),
-        ]);
+        $rp->setAppUser($user);
+
+        $em->persist($rp);
+        $em->flush();
+
+        $rps = $this->getDoctrine()
+            ->getRepository(Rp::class)->findAll();
+        return $this->json($this->serialize($rps));
     }
 
     /**

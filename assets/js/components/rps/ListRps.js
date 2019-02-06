@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+import FormRps from './FormRps';
+import {BrowserRouter, Router, HashRouter, Link, Route, Switch} from "react-router-dom";
 
 class ListRps extends React.Component {
     constructor(props) {
@@ -11,7 +13,15 @@ class ListRps extends React.Component {
             statuts: [],
             personnages: [],
             personnages_add: [],
-            rps: []
+            rps: [],
+            editForm:
+                {
+                    id: '',
+                    titre: '',
+                    lien: '',
+                    statut: '',
+                    personnages: []
+                },
         };
 
     }
@@ -111,6 +121,12 @@ class ListRps extends React.Component {
         }
     }
 
+    // ACUTALISER A L'EDITION D'UNE DEPENSE
+    updateRp(data) {
+        //this.setState({rps: JSON.parse(data)});
+        this.update();
+    }
+
     // Fonction de mise à jour des personnes (nouveau fetch)
     update() {
         fetch('http://127.0.0.1:8000/rp/api', {
@@ -135,21 +151,43 @@ class ListRps extends React.Component {
         this.setState({rps: rps});
     }
 
+    // FONCTION EDITER
+    handleEdit(e, id, titre, lien, statut, personnages) {
+        this.setState({editForm:
+                {
+                    id: id,
+                    titre: titre,
+                    lien: lien,
+                    statut: statut,
+                    personnages: personnages
+                }
+        });
+        window.scrollTo(0, 250);
+    }
+
     render() {
         // console.log(this.state.personnages);
 
+        const url = window.location.pathname;
+        console.log(url);
+
         const rps = this.state.rps.map(rp => {
+            let persos = [];
             return (
                 <div className="d-flex align-items-center mb-1" key={rp.id}>
                     {rp.title}
+
                     {
                         rp.appCharacter.map((character) => {
+                            persos.push(character.id)
                         return (
-                            <ul ><li>{character.name}</li></ul>
+                            <ul key={character.id}><li>{character.name}</li></ul>
                         )
                         })
                     }
                     <button id={rp.id} onClick={(e) => this.handleDelete(e.target.id)} className="ml-2" color="danger">Supprimer</button>
+                    <Link to="/rp/index/edit" onClick={(e) => this.handleEdit(e,rp.id, rp.title, rp.link, rp.status.id, persos)} className="btn btn-primary align-self-center ml-2">Modifier</Link>
+
                 </div>
             )
         });
@@ -170,29 +208,11 @@ class ListRps extends React.Component {
         return (
             <div>
                 <h1>Rps</h1>
-                <form onSubmit={this.handleSubmit.bind(this)}>
-                    <div className="d-flex align-items-center">
-                        <label htmlFor="titre" className="mr-2 font-weight-bold">Titre</label>
-                        <input type="text" value={this.state.titre} onChange={this.handleChange.bind(this)} name="titre" id="titre" placeholder="Titre" required />
-                    </div>
-                    <div className="d-flex align-items-center">
-                        <label htmlFor="lien" className="mr-2 font-weight-bold">Lien</label>
-                        <input type="text" value={this.state.lien} onChange={this.handleChange.bind(this)} name="lien" id="lien" placeholder="Lien" />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="statut">Statut</label>
-                        <select value={this.state.statut} onChange={this.handleChange.bind(this)} className="form-control" name="statut" id="statut">
-                        { statut }
-                        </select>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="personnages_add">Example multiple select</label>
-                        <select value={this.state.personnages_add} onChange={this.handleChangeMultiple.bind(this)} multiple={true} name="personnages_add" className="form-control" id="personnages_add">
-                        { characters }
-                        </select>
-                    </div>
-                    <button type="submit">Submit</button>
-                </form>
+
+                <Link to="/rp/index/add" className="btn btn-primary">Ajouter</Link>
+                <Route path="/rp/index/add" render={props=><FormRps {...props} edit="false" statuts={this.state.statuts} personnages={this.state.personnages} url="/rp/index" addRp={data => this.addRp(data)} />} />
+                <Route exact path="/rp/index/edit" render={props=><FormRps {...props} edit="true" data={this.state.editForm} personnages={this.state.personnages} statuts={this.state.statuts} url="/rp/index" updateRp={data => this.updateRp(data)} />} />
+
 
                 <h2>Liste des personnes</h2>
                     {rps}
@@ -201,4 +221,4 @@ class ListRps extends React.Component {
     }
 }
 
-ReactDOM.render(<ListRps/>, document.getElementById('rps-list'));
+ReactDOM.render(<BrowserRouter><ListRps/></BrowserRouter>, document.getElementById('rps-list'));
