@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import FormRps from './FormRps';
 import {BrowserRouter, Router, HashRouter, Link, Route, Switch} from "react-router-dom";
+import './rps.scss';
 
 class ListRps extends React.Component {
     constructor(props) {
@@ -174,14 +175,15 @@ class ListRps extends React.Component {
         const rps = this.state.rps.map(rp => {
             let persos = [];
             return (
-                <div className="d-flex align-items-center mb-1" key={rp.id}>
-                    {rp.title}
+                <div className="rp card align-items-center" key={rp.id}>
+                    <div className="rp__label">{rp.status.label}</div>
+                    <h2 className="rp__title">{rp.title}</h2>
 
                     {
                         rp.appCharacter.map((character) => {
                             persos.push(character.id)
                         return (
-                            <ul key={character.id}><li>{character.name}</li></ul>
+                            <div key={character.id}>{character.name + ' ' + character.surname}</div>
                         )
                         })
                     }
@@ -215,7 +217,9 @@ class ListRps extends React.Component {
 
 
                 <h2>Liste des personnes</h2>
+                <div className="container">
                     {rps}
+                </div>
             </div>
         );
     }
