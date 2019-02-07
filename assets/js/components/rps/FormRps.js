@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import {Redirect, Link} from "react-router-dom";
+import MultiSelectBox from 'react-multiselect-box'
+import 'react-multiselect-box/build/css/index.css'
 
 class FormRps extends Component {
     constructor(props) {
@@ -12,7 +14,8 @@ class FormRps extends Component {
                 statuts: [],
                 personnages: props.data.personnages,
                 personnages_add: [],
-                redirect: false
+                redirect: false,
+                selectedOne: []
             }
         } else {
             this.state = {
@@ -22,7 +25,8 @@ class FormRps extends Component {
                 statuts: [],
                 personnages: [],
                 personnages_add: [],
-                redirect: false
+                redirect: false,
+                selectedOne: []
             }
         }
 
@@ -43,10 +47,6 @@ class FormRps extends Component {
     }
 
     componentDidMount() {
-        console.log("titre 2:" + this.state.titre);
-        console.log("Lien 2:" + this.state.lien);
-        console.log("Statut2 :" + this.state.statut);
-        console.log("Personnages2 :" + this.state.personnages);
 
     }
 
@@ -78,7 +78,7 @@ class FormRps extends Component {
                     titre: this.state.titre,
                     statut: parseInt(this.state.statut),
                     lien: this.state.lien,
-                    personnages: this.state.personnages_add
+                    personnages: this.state.personnages
                 })
             })
                 .then(response => response.json())
@@ -102,7 +102,7 @@ class FormRps extends Component {
                     titre: this.state.titre,
                     statut: parseInt(this.state.statut),
                     lien: this.state.lien,
-                    personnages: this.state.personnages_add
+                    personnages: this.state.personnages
                 })
             })
                 .then(response => response.json())
@@ -119,7 +119,7 @@ class FormRps extends Component {
 
 
     render() {
-
+        const { selectedOne, personnages } = this.state;
         // Selon comment la route se termine, le titre affiche 'modifier' ou 'ajouter'
         let titre;
 
@@ -133,9 +133,20 @@ class FormRps extends Component {
         if (this.state.redirect == true) {
             return <Redirect to={this.props.url}/>
         }
-        console.log(this.props.url);
+        
         const characters = this.props.personnages.map((char) => <option key={char.id} value={char.id}>{char.name} {char.surname}</option>);
         const statut = this.props.statuts.map((s) => <option key={s.id} value={s.id}>{s.label}</option>);
+
+        const getOptions = () => {
+            let options = [];
+            for (let i = 0; i < this.props.personnages.length; i++) {
+                options.push({
+                    desc: this.props.personnages[i].name + ' ' + this.props.personnages[i].surname,
+                    value: this.props.personnages[i].id
+                })
+            }
+            return options
+        };
 
         return (
             <div>
@@ -155,12 +166,39 @@ class FormRps extends Component {
                             { statut }
                         </select>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="personnages_add">Example multiple select</label>
-                        <select value={this.state.personnages_add} onChange={this.handleChangeMultiple.bind(this)} multiple={true} name="personnages_add" className="form-control" id="personnages_add">
-                            { characters }
-                        </select>
-                    </div>
+                    <MultiSelectBox
+                        options={getOptions()}
+                        labelKey="desc"
+                        valueKey="value"
+                        valueArray={personnages}
+                        onAdd={selectedItem => {
+                            this.setState({
+                            personnages: [...this.state.personnages, selectedItem.value]
+                            })
+                        }}
+                        onRemove={(removedItem, index) => {
+                            this.setState({
+                            personnages: [
+                                ...this.state.personnages.filter(
+                                item => item !== removedItem.value
+                                )
+                            ]
+                            })
+                        }}
+                        onSelectAll={selectedItems => {
+                            this.setState({
+                            personnages: [
+                                ...this.state.personnages,
+                                ...selectedItems.map(item => item.value)
+                            ]
+                            })
+                        }}
+                        onRemoveAll={() =>
+                            this.setState({
+                            personnages: []
+                            })
+                        }
+                        />
                     <button type="submit">Submit</button>
                 </form>
             </div>

@@ -172,6 +172,12 @@ class RpController extends BaseController
         $rp->setTitle($jsonData["titre"]);
         $rp->setLink($jsonData["lien"]);
 
+        $removeChar= $rp->getAppCharacter();
+
+        foreach ($removeChar as $r) {
+            $rp->removeAppCharacter($r);
+        }
+
         foreach ($personnages as $personnage) {
             $rp->addAppCharacter($personnage);
         }
