@@ -6,6 +6,7 @@ use App\Entity\AppCharacter;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class AppCharacterType extends AbstractType
 {
@@ -14,6 +15,7 @@ class AppCharacterType extends AbstractType
         $builder
             ->add('name')
             ->add('surname')
+            ->add('avatar', FileType::class, array('required' => false))
         ;
     }
 

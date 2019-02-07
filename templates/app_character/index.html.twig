@@ -23,6 +23,7 @@
                 <td>{{ app_character.id }}</td>
                 <td>{{ app_character.name }}</td>
                 <td>{{ app_character.surname }}</td>
+                <td><img src="{{ asset('uploads/avatars/' ~ app_character.avatar) }}"/></td>
                 <td>
                     <a href="{{ path('app_character_show', {'id': app_character.id}) }}">show</a>
                     <a href="{{ path('app_character_edit', {'id': app_character.id}) }}">edit</a>
