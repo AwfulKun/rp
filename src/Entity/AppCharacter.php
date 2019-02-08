@@ -67,12 +67,9 @@ class AppCharacter
     private $owner;
 
     /**
-     * @var AppUser
+     *  @var AppUser
      *
-     * @ORM\ManyToOne(targetEntity="AppUser")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="app_user_id", referencedColumnName="id")
-     * })
+     * @ORM\ManyToOne(targetEntity="App\Entity\AppUser")
      */
     private $owneralias;
 

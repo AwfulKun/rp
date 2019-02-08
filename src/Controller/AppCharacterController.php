@@ -157,13 +157,13 @@ class AppCharacterController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $owner = $form->get('owner')->getData();
-            var_dump($owner);
+            
             $findOwner = $this->getDoctrine()
             ->getRepository(AppUser::class)->findOneBy(['username' => $owner]);
-
-            if ($findOwner) {
+            if ($findOwner != null) {
                 $appCharacter->setOwneralias($findOwner);
             }
+        
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('characters_index', [
