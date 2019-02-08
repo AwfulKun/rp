@@ -62,6 +62,21 @@ class AppCharacter
     private $avatar;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $owner;
+
+    /**
+     * @var AppUser
+     *
+     * @ORM\ManyToOne(targetEntity="AppUser")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="app_user_id", referencedColumnName="id")
+     * })
+     */
+    private $owneralias;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -150,6 +165,30 @@ class AppCharacter
     public function setAvatar(?string $avatar): self
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    public function getOwner(): ?string
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?string $owner): self
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getOwneralias(): ?AppUser
+    {
+        return $this->owneralias;
+    }
+
+    public function setOwneralias(?AppUser $owneralias): self
+    {
+        $this->owneralias = $owneralias;
 
         return $this;
     }

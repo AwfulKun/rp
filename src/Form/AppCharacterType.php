@@ -15,6 +15,7 @@ class AppCharacterType extends AbstractType
         $builder
             ->add('name')
             ->add('surname')
+            ->add('owner')
             ->add('avatar', FileType::class, array('required' => false))
         ;
     }

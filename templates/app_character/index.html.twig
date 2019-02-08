@@ -14,6 +14,8 @@
                 <th>Id</th>
                 <th>Name</th>
                 <th>Surname</th>
+                <th>Owner</th>
+                <th>Avatar</th>
                 <th>actions</th>
             </tr>
         </thead>
@@ -22,7 +24,9 @@
             <tr>
                 <td>{{ app_character.id }}</td>
                 <td>{{ app_character.name }}</td>
-                <td>{{ app_character.surname }}</td>
+                <td>{{ app_character.surname }}{{ app_character.owneralias }} </td>
+                
+                <td>{% if app_character.owneralias %}{{ app_character.owneralias.username }} {{app_character.owneralias.id }} blabla{%else%}{{ app_character.owner }}{% endif %}</td>
                 <td><img src="{{ asset('uploads/avatars/' ~ app_character.avatar) }}"/></td>
                 <td>
                     <a href="{{ path('app_character_show', {'id': app_character.id}) }}">show</a>

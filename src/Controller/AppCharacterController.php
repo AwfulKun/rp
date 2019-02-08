@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\AppCharacter;
+use App\Entity\AppUser;
 use App\Form\AppCharacterType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,6 +98,21 @@ class AppCharacterController extends AbstractController
             // updates the 'brochure' property to store the PDF file name
             // instead of its contents
             $appCharacter->setAvatar($fileName);
+
+            $owner = $form->get('owner')->getData();
+            $findOwner = $this->getDoctrine()
+            ->getRepository(AppUser::class)
+            ->createQueryBuilder('a')
+            ->select('a')
+            ->where('a.username = :owner')
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getResult();
+
+            if ($findOwner) {
+                $appCharacter->setOwner($findOwner);
+            }
+
             $entityManager = $this->getDoctrine()->getManager();
             $appCharacter->setAppUser($this->getUser());
             $entityManager->persist($appCharacter);
@@ -140,6 +156,14 @@ class AppCharacterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $owner = $form->get('owner')->getData();
+            var_dump($owner);
+            $findOwner = $this->getDoctrine()
+            ->getRepository(AppUser::class)->findOneBy(['username' => $owner]);
+
+            if ($findOwner) {
+                $appCharacter->setOwneralias($findOwner);
+            }
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('characters_index', [
