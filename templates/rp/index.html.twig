@@ -1,43 +1,14 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Rp index{% endblock %}
 {% block stylesheets %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        {{ encore_entry_link_tags('app') }}
+
     {{ encore_entry_link_tags('rps') }}
 {% endblock %}
 {% block body %}
     <h1>Rp index</h1>
-{{ dump(rps) }}
-<div id="rps-list"></div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Link</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for rp in rps %}
-            <tr>
-                <td>{{ rp.id }}</td>
-                <td>{{ rp.title }}</td>
-                <td>{{ rp.link }}</td>
-                <td>
-                    <a href="{{ path('rp_show', {'id': rp.id}) }}">show</a>
-                    <a href="{{ path('rp_edit', {'id': rp.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('rp_new') }}">Create new</a>
+    <div id="rps-list"></div>
 {% endblock %}
 {% block javascripts %}
     {{ encore_entry_script_tags('rps') }}

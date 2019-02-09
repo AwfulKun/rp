@@ -68,7 +68,7 @@ class RpController extends BaseController
             ->join('r.appUser', 'a')
             ->leftJoin('r.appCharacter', 'appCharacter')
             ->where('a.id = :id')
-            // ->groupBy('r.id')
+            ->orderBy('r.id', 'DESC')
             ->setParameter('id', $user)
             ->getQuery()
             ->getResult();

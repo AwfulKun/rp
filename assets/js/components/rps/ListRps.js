@@ -167,28 +167,45 @@ class ListRps extends React.Component {
     }
 
     render() {
-        // console.log(this.state.personnages);
 
         const url = window.location.pathname;
-        console.log(url);
 
         const rps = this.state.rps.map(rp => {
             let persos = [];
+            let labelClass = "";
+            switch(rp.status.id) {
+                case 1:
+                    labelClass = "en-cours";
+                    break;
+                case 2:
+                    labelClass = "termine";
+                    break;
+                case 3:
+                    labelClass = "abandonne";
+                    break;
+                case 4:
+                    labelClass = "a-faire";
+                    break;
+                
+            }
             return (
-                <div className="rp card align-items-center" key={rp.id}>
-                    <div className="rp__label">{rp.status.label}</div>
+                <div className="rp card mt-3" key={rp.id}>
+                    <div className={"rp__label rp__label--"+labelClass}>{rp.status.label}</div>
                     <h2 className="rp__title">{rp.title}</h2>
-
+                    <div className="d-flex">
                     {
                         rp.appCharacter.map((character) => {
                             persos.push(character.id)
                         return (
-                            <div key={character.id}>{character.name + ' ' + character.surname}</div>
+                            <span key={character.id} className="rp__char">{character.name + ' ' + character.surname}</span>
                         )
                         })
                     }
-                    <button id={rp.id} onClick={(e) => this.handleDelete(e.target.id)} className="ml-2" color="danger">Supprimer</button>
-                    <Link to="/rp/index/edit" onClick={(e) => this.handleEdit(e,rp.id, rp.title, rp.link, rp.status.id, persos)} className="btn btn-primary align-self-center ml-2">Modifier</Link>
+                    </div>
+                    <div className="d-flex mt-2 justify-content-end">
+                        <button id={rp.id} onClick={(e) => this.handleDelete(e.target.id)} className="btn btn-outline-danger rounded-0 btn-sm mr-1">Supprimer</button>
+                        <Link to="/rp/index/edit" onClick={(e) => this.handleEdit(e,rp.id, rp.title, rp.link, rp.status.id, persos)} className="btn btn-outline-primary rounded-0 btn-sm">Modifier</Link>
+                    </div>
 
                 </div>
             )
@@ -208,7 +225,7 @@ class ListRps extends React.Component {
         }
 
         return (
-            <div>
+            <div className="container">
                 <h1>Rps</h1>
 
                 <Link to="/rp/index/add" className="btn btn-primary">Ajouter</Link>
@@ -216,8 +233,7 @@ class ListRps extends React.Component {
                 <Route exact path="/rp/index/edit" render={props=><FormRps {...props} edit="true" data={this.state.editForm} personnages={this.state.personnages} statuts={this.state.statuts} url="/rp/index" updateRp={data => this.updateRp(data)} />} />
 
 
-                <h2>Liste des personnes</h2>
-                <div className="container">
+                <div>
                     {rps}
                 </div>
             </div>

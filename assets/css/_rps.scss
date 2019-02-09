@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:800');
+#rps-list {
+    background-color: #f4f2f2;
+}
+.rp {
+    padding: 15px;
+    padding-bottom: 10px;
+    &__label {
+        border-bottom: 1px solid #dcdcdc;
+        font-size: 10px;
+        padding-bottom: 5px;
+        padding-right: 15px;
+        position: relative;
+        text-align: right;
+        text-transform: uppercase;
+        &::after {
+            background-color: red;
+            border-radius: 50%;
+            content: "";
+            height: 6px;
+            right: 2px;
+            position: absolute;
+            top: calc(50% - 6px);
+            width: 6px;
+        }
+        &--en-cours::after {
+            background-color: green;
+        }
+        &--termine::after {
+            background-color: red;
+        }
+        &--abandonne::after {
+            background-color: orange;
+        }
+        &--a-faire::after {
+            background-color: blue;         
+        }
+    }
+    &__title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 18px;
+        font-weight: 800;
+        margin: 10px 0 0;
+    }
+    &__char {
+        font-size: 0.8em;
+        &::after {
+            content: ", ";
+            margin-right: 5px;
+        }
+        &:last-child::after {
+            display: none;
+        }
+    }
+}

@@ -6,7 +6,7 @@ import Home from './components/Home'
 import FormLogin from './components/FormLogin';
 import Menu from './components/Menu';
 import Character from './Characters';
-import css from '../css/app.css';
+import css from '../css/app.scss';
  
  class App extends React.Component {
         
