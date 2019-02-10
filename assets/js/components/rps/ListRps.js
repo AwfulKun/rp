@@ -15,6 +15,7 @@ class ListRps extends React.Component {
             personnages: [],
             personnages_add: [],
             rps: [],
+            active: false,
             editForm:
                 {
                     id: '',
@@ -157,6 +158,9 @@ class ListRps extends React.Component {
 
     // FONCTION EDITER
     handleEdit(e, id, titre, lien, statut, personnages) {
+        if (!lien) {
+            this.setState({lien:''});
+        }
         this.setState({editForm:
                 {
                     id: id,
@@ -172,7 +176,12 @@ class ListRps extends React.Component {
     // SYSTEME DE FILTRES
     handleFilters(filterKey, filterValue) {
         this.setState({ filters: { ...this.state.filters, [filterKey]: filterValue} });
-        console.log(filterValue);
+        let btnFilters = document.getElementsByClassName('rp__filter');
+        var arr = Array.from(btnFilters);
+        arr.map((btnFilter)=>{
+            btnFilter.classList.remove('rp__filter--active');
+        });
+        event.target.classList.toggle('rp__filter--active');
     }
 
     render() {
@@ -234,7 +243,7 @@ class ListRps extends React.Component {
             )
         });
 
-        const filterRps = this.state.statuts.map((s) => <span className="btn btn-primary" value={s.id} key={s.id} onClick={(e) => this.handleFilters("statut", s.id)}>{s.label}</span>);
+        const filterRps = this.state.statuts.map((s) => <span className="rp__filter btn btn-primary " value={s.id} key={s.id} onClick={(e) => this.handleFilters("statut", s.id)}>{s.label}</span>);
 
         const characters = this.state.personnages.map((char) => <option key={char.id} value={char.id}>{char.name} {char.surname}</option>);
         const statut = this.state.statuts.map((s) => <option key={s.id} value={s.id}>{s.label}</option>);
@@ -257,7 +266,8 @@ class ListRps extends React.Component {
                 <Route path="/rp/index/add" render={props=><FormRps {...props} edit="false" statuts={this.state.statuts} personnages={this.state.personnages} url="/rp/index" addRp={data => this.addRp(data)} />} />
                 <Route exact path="/rp/index/edit" render={props=><FormRps {...props} edit="true" data={this.state.editForm} personnages={this.state.personnages} statuts={this.state.statuts} url="/rp/index" updateRp={data => this.updateRp(data)} />} />
 
-                <span className="btn btn-primary" onClick={(e) => this.handleFilters("statut", 0)}>Tout</span>{filterRps}
+                <hr/>
+                    <span className="rp__filter btn btn-primary rp__filter--active" onClick={(e) => this.handleFilters("statut", 0)}>Tout</span>{filterRps}
                 <hr/>
                 <div>
                     {rps}

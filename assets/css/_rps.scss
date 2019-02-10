@@ -52,4 +52,9 @@
             display: none;
         }
     }
+    &__filter {
+        &--active {
+            color: red;
+        }
+    }
 }
